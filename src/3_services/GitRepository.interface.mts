@@ -1,13 +1,13 @@
 import Submodule from "./Submodule.interface.mjs";
 
 export default interface GitRepository {
-  identifier: Promise<string>;
+  // identifier: Promise<string>;
   folderPath: string;
-  currentBranch: Promise<string>;
-  remoteUrl: Promise<string>;
+  currentBranch: string;
+  remoteUrl: string;
 
-  getAndInstallSubmodule(repoPath: string, path: string): Promise<Submodule>;
-  addSubmodule(repoToAdd: GitRepository): Promise<Submodule>;
+  // getAndInstallSubmodule(repoPath: string, path: string): Promise<Submodule>;
+  // addSubmodule(repoToAdd: GitRepository): Promise<Submodule>;
   getSubmodules(): Promise<Submodule[]>;
   init({
     baseDir,
@@ -16,15 +16,15 @@ export default interface GitRepository {
   }: GitRepositoryParameter): Promise<GitRepository>;
 }
 
-export class GitRepositoryConstants {
-  static readonly NOTINITIALIZED = "GitRepository wasn't initalized";
-}
+// export class GitRepositoryConstants {
+//   static readonly NOTINITIALIZED = "GitRepository wasn't initalized";
+// }
 
-export class GitRepositoryNotInitialisedError extends Error {
-  constructor() {
-    super(GitRepositoryConstants.NOTINITIALIZED);
-  }
-}
+// export class GitRepositoryNotInitialisedError extends Error {
+//   constructor() {
+//     super(GitRepositoryConstants.NOTINITIALIZED);
+//   }
+// }
 
 export type GitCloneParameter = {
   url: string;
@@ -37,7 +37,7 @@ export type GitRepositoryParameter = {
   init?: boolean;
 };
 
-export type Result = {
-  sucess: boolean;
-  errorMessage?: string;
-};
+// export type Result = {
+//   sucess: boolean;
+//   errorMessage?: string;
+// };
