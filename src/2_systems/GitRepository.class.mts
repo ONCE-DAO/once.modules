@@ -1,7 +1,3 @@
-// import fs, { cpSync, existsSync, fstat, mkdirSync, renameSync } from "fs";
-// import { join, relative } from "path";
-// import simpleGit, { Options, SimpleGit, TaskOptions } from "simple-git";
-
 import { execSync } from "child_process";
 import simpleGit, { SimpleGit } from "simple-git";
 import GitRepository, {
@@ -11,14 +7,6 @@ import GitRepository, {
 import SubmoduleInterface from "../3_services/Submodule.interface.mjs";
 import DefaultSubmodule from "./Submodule.class.mjs";
 
-// import GitRepository, {
-//   GitCloneParameter,
-//   GitRepositoryNotInitialisedError,
-//   GitRepositoryParameter,
-//   Result,
-// } from "../3_services/GitRepository.interface.mjs";
-// import SubmoduleInterface from "../3_services/Submodule.interface.mjs";
-// import DefaultSubmodule from "./Submodule.class.mjs";
 export default class DefaultGitRepository implements GitRepository {
   folderPath: string = "";
   currentBranch: string;
@@ -33,8 +21,6 @@ export default class DefaultGitRepository implements GitRepository {
       .split("\n")
       .filter((e) => e);
 
-
-      
     for (let module of modules) {
       const active =
         (await this.gitRepository.getConfig(`submodule.${module}.active`))
@@ -76,7 +62,8 @@ export default class DefaultGitRepository implements GitRepository {
     return new DefaultGitRepository(
       gitRepository,
       await this.getBranch(gitRepository),
-      await this.getRemoteUrl(gitRepository)
+      await this.getRemoteUrl(gitRepository),
+      baseDir
     );
   }
 
@@ -90,10 +77,16 @@ export default class DefaultGitRepository implements GitRepository {
     return status.current || "";
   }
 
-  private constructor(gitRepo: SimpleGit, branch: string, remoteUrl: string) {
+  private constructor(
+    gitRepo: SimpleGit,
+    branch: string,
+    remoteUrl: string,
+    folderPath: string
+  ) {
     this.gitRepository = gitRepo;
     this.currentBranch = branch;
     this.remoteUrl = remoteUrl;
+    this.folderPath = folderPath;
   }
 
   // get repoName(): Promise<string | undefined> {

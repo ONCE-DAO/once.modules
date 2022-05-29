@@ -1,3 +1,4 @@
+import { join } from "path";
 // import { execSync, spawn, spawnSync } from "child_process";
 // import chokidar from "chokidar";
 // import {
@@ -18,10 +19,13 @@
 // import glob from "glob";
 // import DefaultGitRepository from "./GitRepository.class.mjs";
 
+import { exec, execSync, spawn } from "child_process";
 import Submodule from "../3_services/Submodule.interface.mjs";
 import SubmoduleInterface, {
   SubmoduleStatic,
 } from "../3_services/Submodule.interface.mjs";
+import { NpmPackage } from "./NpmPackage.class.mjs";
+import { existsSync } from "fs";
 
 // //TODO @PB Refactor code
 // export default class DefaultSubmodule implements Submodule {
@@ -272,12 +276,29 @@ export default class DefaultSubmodule {
   url: string;
   branch: string;
   basePath: string;
+  package: NpmPackage | undefined;
 
   installDependencies(): Promise<void> {
     throw new Error("Method not implemented.");
   }
-  build(): Promise<void> {
-    throw new Error("Method not implemented.");
+  async build(): Promise<void> {
+    // if (this.package && this.package.scripts && this.package.scripts.build) {
+    //   console.log("BUILD SCRIPT EXIST");
+    //   execSync(`npm --prefix ${join(this.basePath, this.path)} run build`, {
+    //     stdio: "inherit",
+    //   });
+    // }
+    if (existsSync(join(this.basePath, this.path, "tsconfig.json"))) {
+      console.log("TSCONFIG EXIST");
+      execSync(`npx tsc`, {
+        stdio: "inherit",
+        cwd: join(this.basePath, this.path),
+      });
+
+      console.log("foo");
+    }
+
+    // throw new Error("Method not implemented.");
   }
   watch(): Promise<void> {
     throw new Error("Method not implemented.");
@@ -295,5 +316,6 @@ export default class DefaultSubmodule {
     this.url = url;
     this.branch = branch;
     this.basePath = basePath;
+    this.package = NpmPackage.getByFolder(join(basePath, path));
   }
 }
