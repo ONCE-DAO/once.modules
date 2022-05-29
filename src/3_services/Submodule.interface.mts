@@ -11,6 +11,11 @@ export default interface Submodule {
   // addFromRemoteUrl(args: AddSubmoduleArgs): Promise<Submodule>;
 }
 
+export interface SubmoduleStatic<T> {
+  new (): T;
+  getInstance(): T;
+}
+
 export type AddSubmoduleArgs = {
   url: string;
   branch?: string;

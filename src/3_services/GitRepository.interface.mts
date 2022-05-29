@@ -9,16 +9,23 @@ export default interface GitRepository {
   // getAndInstallSubmodule(repoPath: string, path: string): Promise<Submodule>;
   // addSubmodule(repoToAdd: GitRepository): Promise<Submodule>;
   getSubmodules(): Promise<Submodule[]>;
-  init({
-    baseDir,
-    clone,
-    init,
-  }: GitRepositoryParameter): Promise<GitRepository>;
+  // init({
+  //   baseDir,
+  //   clone,
+  //   init,
+  // }: GitRepositoryParameter): Promise<GitRepository>;
 }
 
-// export class GitRepositoryConstants {
-//   static readonly NOTINITIALIZED = "GitRepository wasn't initalized";
-// }
+export class GitRepositoryConstants {
+  static readonly NOTINITIALIZED = "GitRepository wasn't initalized";
+  static readonly NOTAREPO = "path is not a git repository";
+}
+
+export class NotAGitRepositoryError extends Error {
+  constructor() {
+    super(GitRepositoryConstants.NOTAREPO);
+  }
+}
 
 // export class GitRepositoryNotInitialisedError extends Error {
 //   constructor() {
@@ -32,7 +39,7 @@ export type GitCloneParameter = {
 };
 
 export type GitRepositoryParameter = {
-  baseDir?: string;
+  baseDir: string;
   clone?: GitCloneParameter;
   init?: boolean;
 };

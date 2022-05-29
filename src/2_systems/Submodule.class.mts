@@ -18,6 +18,11 @@
 // import glob from "glob";
 // import DefaultGitRepository from "./GitRepository.class.mjs";
 
+import Submodule from "../3_services/Submodule.interface.mjs";
+import SubmoduleInterface, {
+  SubmoduleStatic,
+} from "../3_services/Submodule.interface.mjs";
+
 // //TODO @PB Refactor code
 // export default class DefaultSubmodule implements Submodule {
 //   path: string;
@@ -260,3 +265,35 @@
 //   //   return sub;
 //   // }
 // }
+
+export default class DefaultSubmodule {
+  name: string;
+  path: string;
+  url: string;
+  branch: string;
+  basePath: string;
+
+  installDependencies(): Promise<void> {
+    throw new Error("Method not implemented.");
+  }
+  build(): Promise<void> {
+    throw new Error("Method not implemented.");
+  }
+  watch(): Promise<void> {
+    throw new Error("Method not implemented.");
+  }
+
+  constructor(
+    name: string,
+    path: string,
+    url: string,
+    branch: string,
+    basePath: string
+  ) {
+    this.name = name;
+    this.path = path;
+    this.url = url;
+    this.branch = branch;
+    this.basePath = basePath;
+  }
+}
