@@ -280,8 +280,11 @@ export default class DefaultSubmodule {
   basePath: string;
   package: NpmPackage | undefined;
 
-  installDependencies(): Promise<void> {
-    throw new Error("Method not implemented.");
+  async installDependencies(): Promise<void> {
+    execSync("npm i", {
+      stdio: "inherit",
+      cwd: join(this.basePath, this.path),
+    });
   }
   async build(watch: boolean = false): Promise<void> {
     // if (this.package && this.package.scripts && this.package.scripts.build) {

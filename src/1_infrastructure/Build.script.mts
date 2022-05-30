@@ -10,6 +10,7 @@ subs.forEach((sub) => sub.build());
 
 for (let sub of subs) {
   try {
+    await sub.installDependencies()
     await sub.build();
   } catch (error) {
     console.error("ERROR!", error);
