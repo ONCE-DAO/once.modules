@@ -352,8 +352,7 @@ export default class DefaultSubmodule implements Submodule {
   }
 
   async copyNodeModules(): Promise<void> {
-    console.log(this.node_modules, this.node_modules_dist);
-    if (!fs.existsSync(this.node_modules_dist))
-    fs.cpSync(this.node_modules,this.node_modules_dist,{recursive:true})
+    if (existsSync(this.node_modules) && !existsSync(this.node_modules_dist))
+      fs.cpSync(this.node_modules, this.node_modules_dist, { recursive: true });
   }
 }

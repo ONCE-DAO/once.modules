@@ -9,8 +9,8 @@ const subs = await repo.getSubmodules();
 
 for (let sub of subs) {
   try {
-    await sub.copyNodeModules();
     await sub.installDependencies();
+    await sub.copyNodeModules();
     await sub.build();
   } catch (error) {
     console.error("ERROR ", error);
