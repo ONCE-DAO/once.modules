@@ -5,6 +5,7 @@ export default interface Submodule {
   // distPath: string;
   installDependencies(): Promise<void>;
   build(): Promise<void>;
+  copyNodeModules(): Promise<void>;
   // afterbuild(): void;
   watch(): Promise<void>;
   // init(config: { path?: string, url?: string, branch?: string }): Promise<Submodule>;

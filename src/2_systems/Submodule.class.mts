@@ -1,4 +1,5 @@
 import { join } from "path";
+import * as fs from "fs";
 // import { execSync, spawn, spawnSync } from "child_process";
 // import chokidar from "chokidar";
 // import {
@@ -272,7 +273,7 @@ import { PassThrough } from "stream";
 //   // }
 // }
 
-export default class DefaultSubmodule {
+export default class DefaultSubmodule implements Submodule {
   name: string;
   path: string;
   url: string;
@@ -280,7 +281,27 @@ export default class DefaultSubmodule {
   basePath: string;
   package: NpmPackage | undefined;
 
+  get distFolder() {
+    return join(
+      this.basePath,
+      this.path,
+      "..",
+      "..",
+      "dist",
+      this.name,
+      this.branch
+    );
+  }
+
+  private get node_modules_dist() {
+    return join(this.distFolder, "node_modules");
+  }
+  private get node_modules() {
+    return join(this.basePath, this.path, "node_modules");
+  }
+
   async installDependencies(): Promise<void> {
+    console.log(`npm i ${join(this.basePath, this.path)}`);
     execSync("npm i", {
       stdio: "inherit",
       cwd: join(this.basePath, this.path),
@@ -328,5 +349,11 @@ export default class DefaultSubmodule {
     this.branch = branch;
     this.basePath = basePath;
     this.package = NpmPackage.getByFolder(join(basePath, path));
+  }
+
+  async copyNodeModules(): Promise<void> {
+    console.log(this.node_modules, this.node_modules_dist);
+    if (!fs.existsSync(this.node_modules_dist))
+    fs.cpSync(this.node_modules,this.node_modules_dist,{recursive:true})
   }
 }

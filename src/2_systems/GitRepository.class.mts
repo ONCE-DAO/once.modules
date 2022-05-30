@@ -26,12 +26,13 @@ export default class DefaultGitRepository implements GitRepository {
         (await this.gitRepository.getConfig(`submodule.${module}.active`))
           .value === "true";
       // if (!active) continue;
+      const branch = await this.getSubmoduleValue(`submodule.${module}.branch`);
       submodules.push(
         new DefaultSubmodule(
-          module,
+          module.replace(`@${branch}`, ""),
           await this.getSubmoduleValue(`submodule.${module}.path`),
           await this.getSubmoduleValue(`submodule.${module}.url`),
-          await this.getSubmoduleValue(`submodule.${module}.branch`),
+          branch,
           this.folderPath
         )
       );
