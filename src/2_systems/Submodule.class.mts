@@ -322,12 +322,13 @@ export default class DefaultSubmodule implements Submodule {
       // });
 
       const child = spawn("npx", ["tsc", "--watch"], {
-        stdio: "inherit",
+        //@TODO print child output to main console
+        stdio: "ignore",
 
         cwd: join(this.basePath, this.path),
       });
 
-      console.log("foo");
+      console.log("foo!");
     }
 
     // throw new Error("Method not implemented.");
