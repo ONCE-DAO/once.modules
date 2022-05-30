@@ -294,7 +294,7 @@ export default class DefaultSubmodule implements Submodule {
   }
 
   private get node_modules_dist() {
-    return join(this.distFolder, "node_modules");
+    return join(this.distFolder, "..", "..", "node_modules");
   }
   private get node_modules() {
     return join(this.basePath, this.path, "node_modules");
