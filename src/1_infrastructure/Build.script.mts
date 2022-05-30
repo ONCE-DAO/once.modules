@@ -13,7 +13,7 @@ for (let sub of subs) {
     await sub.installDependencies()
     await sub.build();
   } catch (error) {
-    console.error("ERROR", error);
+    console.error("ERROR ", error);
   }
   break;
 }
