@@ -13,9 +13,6 @@ beforeAll(async () => {
   await git.clone("https://github.com/ONCE-DAO/testrepo.git");
 });
 
-// const currentFile = fileURLToPath(import.meta.url);
-
-// mkdirSync(norepoPath);
 
 describe("When initialising a git repository", () => {
   test("remote url and current branch have to be detected", async () => {
