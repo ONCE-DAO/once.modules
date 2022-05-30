@@ -26,6 +26,8 @@ import SubmoduleInterface, {
 } from "../3_services/Submodule.interface.mjs";
 import { NpmPackage } from "./NpmPackage.class.mjs";
 import { existsSync } from "fs";
+import * as stream from "stream";
+import { PassThrough } from "stream";
 
 // //TODO @PB Refactor code
 // export default class DefaultSubmodule implements Submodule {
@@ -281,7 +283,7 @@ export default class DefaultSubmodule {
   installDependencies(): Promise<void> {
     throw new Error("Method not implemented.");
   }
-  async build(): Promise<void> {
+  async build(watch: boolean = false): Promise<void> {
     // if (this.package && this.package.scripts && this.package.scripts.build) {
     //   console.log("BUILD SCRIPT EXIST");
     //   execSync(`npm --prefix ${join(this.basePath, this.path)} run build`, {
@@ -290,8 +292,14 @@ export default class DefaultSubmodule {
     // }
     if (existsSync(join(this.basePath, this.path, "tsconfig.json"))) {
       console.log("TSCONFIG EXIST");
-      execSync(`npx tsc`, {
+      // execSync(`npx tsc`, {
+      //   stdio: "inherit",
+      //   cwd: join(this.basePath, this.path),
+      // });
+
+      const child = spawn("npx", ["tsc", "--watch"], {
         stdio: "inherit",
+
         cwd: join(this.basePath, this.path),
       });
 
