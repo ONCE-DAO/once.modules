@@ -25,7 +25,7 @@ export default class DefaultGitRepository implements GitRepository {
       const active =
         (await this.gitRepository.getConfig(`submodule.${module}.active`))
           .value === "true";
-      if (!active) continue;
+      // if (!active) continue;
       submodules.push(
         new DefaultSubmodule(
           module,
