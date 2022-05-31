@@ -5,7 +5,7 @@ export default interface Submodule {
   branch: string;
   // distPath: string;
   installDependencies(): Promise<void>;
-  build(): Promise<void>;
+  build(watch?:boolean): Promise<void>;
   copyNodeModules(): Promise<void>;
   // afterbuild(): void;
   watch(): Promise<void>;

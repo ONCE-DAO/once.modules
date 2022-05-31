@@ -321,7 +321,7 @@ export default class DefaultSubmodule implements Submodule {
       //   cwd: join(this.basePath, this.path),
       // });
 
-      const child = spawn("npx", ["tsc", "--watch"], {
+      const child = spawn("npx", watch ? ["tsc", "--watch"] : ["tsc"], {
         //@TODO print child output to main console
         stdio: "ignore",
 
