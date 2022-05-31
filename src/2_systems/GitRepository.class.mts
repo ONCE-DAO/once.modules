@@ -5,16 +5,24 @@ import GitRepository, {
   NotAGitRepositoryError,
 } from "../3_services/GitRepository.interface.mjs";
 import SubmoduleInterface from "../3_services/Submodule.interface.mjs";
-import DefaultSubmodule from "./Submodule.class.mjs";
+// import DefaultSubmodule from "./Submodule.class.mjs";
 
-export default class DefaultGitRepository implements GitRepository {
+export class DefaultGitRepository implements GitRepository {
   folderPath: string = "";
   currentBranch: string;
   remoteUrl: string;
   private gitRepository: SimpleGit;
 
-  async getSubmodules(): Promise<SubmoduleInterface[]> {
-    const submodules: SubmoduleInterface[] = [];
+  async getSubmodules(
+    initSubmodule: (
+      name: string,
+      path: string,
+      url: string,
+      branch: string,
+      { baseDir, clone, init }: GitRepositoryParameter
+    ) => Promise<SubmoduleInterface & GitRepository>
+  ): Promise<(SubmoduleInterface & GitRepository)[]> {
+    const submodules: (SubmoduleInterface & GitRepository)[] = [];
     const modules = execSync("git submodule foreach --quiet 'echo $name'", {
       encoding: "utf8",
     })
@@ -27,15 +35,26 @@ export default class DefaultGitRepository implements GitRepository {
           .value === "true";
       // if (!active) continue;
       const branch = await this.getSubmoduleValue(`submodule.${module}.branch`);
+
       submodules.push(
-        new DefaultSubmodule(
+        await initSubmodule(
           module.replace(`@${branch}`, ""),
           await this.getSubmoduleValue(`submodule.${module}.path`),
           await this.getSubmoduleValue(`submodule.${module}.url`),
           branch,
-          this.folderPath
+          { baseDir: this.folderPath }
         )
       );
+
+      // submodules.push(
+      //   new DefaultSubmodule(
+      //     module.replace(`@${branch}`, ""),
+      //     await this.getSubmoduleValue(`submodule.${module}.path`),
+      //     await this.getSubmoduleValue(`submodule.${module}.url`),
+      //     branch,
+      //     this.folderPath
+      //   )
+      // );
     }
     return submodules;
   }
@@ -50,6 +69,7 @@ export default class DefaultGitRepository implements GitRepository {
     );
     return rawResult.replace(/\n$/, "");
   }
+
   static async init({
     baseDir,
     clone,
@@ -78,7 +98,7 @@ export default class DefaultGitRepository implements GitRepository {
     return status.current || "";
   }
 
-  private constructor(
+  protected constructor(
     gitRepo: SimpleGit,
     branch: string,
     remoteUrl: string,
@@ -88,6 +108,9 @@ export default class DefaultGitRepository implements GitRepository {
     this.currentBranch = branch;
     this.remoteUrl = remoteUrl;
     this.folderPath = folderPath;
+  }
+  async checkout(branch: string): Promise<void> {
+    execSync(`git checkout ${branch}`,{stdio:"inherit",cwd:this.folderPath})
   }
 
   // get repoName(): Promise<string | undefined> {

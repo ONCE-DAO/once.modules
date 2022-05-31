@@ -1,34 +1,14 @@
+import { DefaultGitRepository } from "./GitRepository.class.mjs";
 import { join } from "path";
-import * as fs from "fs";
-// import { execSync, spawn, spawnSync } from "child_process";
-// import chokidar from "chokidar";
-// import {
-//   cpSync,
-//   existsSync,
-//   mkdirSync,
-//   renameSync,
-//   rmSync,
-//   symlinkSync,
-//   unlinkSync,
-//   watch,
-//   writeFileSync,
-// } from "fs";
-// import { join } from "path";
-// import Submodule, {
-//   AddSubmoduleArgs,
-// } from "../3_services/Submodule.interface.mjs";
-// import glob from "glob";
-// import DefaultGitRepository from "./GitRepository.class.mjs";
-
-import { exec, execSync, spawn } from "child_process";
+import { execSync, spawn } from "child_process";
 import Submodule from "../3_services/Submodule.interface.mjs";
-import SubmoduleInterface, {
-  SubmoduleStatic,
-} from "../3_services/Submodule.interface.mjs";
 import { NpmPackage } from "./NpmPackage.class.mjs";
-import { existsSync } from "fs";
-import * as stream from "stream";
-import { PassThrough } from "stream";
+import { cpSync, existsSync } from "fs";
+import simpleGit, { SimpleGit } from "simple-git";
+import {
+  GitRepositoryParameter,
+  NotAGitRepositoryError,
+} from "../3_services/GitRepository.interface.mjs";
 
 // //TODO @PB Refactor code
 // export default class DefaultSubmodule implements Submodule {
@@ -273,7 +253,10 @@ import { PassThrough } from "stream";
 //   // }
 // }
 
-export default class DefaultSubmodule implements Submodule {
+export default class DefaultSubmodule
+  extends DefaultGitRepository
+  implements Submodule
+{
   name: string;
   path: string;
   url: string;
@@ -337,23 +320,48 @@ export default class DefaultSubmodule implements Submodule {
     throw new Error("Method not implemented.");
   }
 
-  constructor(
+  static async initSubmodule(
     name: string,
     path: string,
     url: string,
     branch: string,
-    basePath: string
+    { baseDir, clone, init }: GitRepositoryParameter
+  ): Promise<DefaultSubmodule> {
+    const gitRepository = simpleGit(baseDir, { binary: "git" });
+
+    if (!(await gitRepository.checkIsRepo()))
+      throw new NotAGitRepositoryError();
+
+    return new DefaultSubmodule(
+      name,
+      path,
+      url,
+      branch,
+      baseDir,
+      gitRepository
+    );
+  }
+
+  protected constructor(
+    name: string,
+    path: string,
+    url: string,
+    branch: string,
+    basePath: string,
+    gitRepo: SimpleGit
   ) {
+    const folderPath = join(basePath, path);
+    super(gitRepo, branch, url, folderPath);
     this.name = name;
     this.path = path;
     this.url = url;
     this.branch = branch;
     this.basePath = basePath;
-    this.package = NpmPackage.getByFolder(join(basePath, path));
+    this.package = NpmPackage.getByFolder(folderPath);
   }
 
   async copyNodeModules(): Promise<void> {
     if (existsSync(this.node_modules) && !existsSync(this.node_modules_dist))
-      fs.cpSync(this.node_modules, this.node_modules_dist, { recursive: true });
+      cpSync(this.node_modules, this.node_modules_dist, { recursive: true });
   }
 }

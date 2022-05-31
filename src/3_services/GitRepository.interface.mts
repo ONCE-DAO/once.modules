@@ -5,10 +5,19 @@ export default interface GitRepository {
   folderPath: string;
   currentBranch: string;
   remoteUrl: string;
+  checkout(branch: string): Promise<void>;
 
   // getAndInstallSubmodule(repoPath: string, path: string): Promise<Submodule>;
   // addSubmodule(repoToAdd: GitRepository): Promise<Submodule>;
-  getSubmodules(): Promise<Submodule[]>;
+  getSubmodules(
+    submoduleConstructor: (
+      name: string,
+      path: string,
+      url: string,
+      branch: string,
+      { baseDir, clone, init }: GitRepositoryParameter
+    ) => Promise<Submodule & GitRepository>
+  ): Promise<(Submodule & GitRepository)[]>;
   // init({
   //   baseDir,
   //   clone,
