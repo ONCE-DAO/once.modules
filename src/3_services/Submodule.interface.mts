@@ -1,11 +1,14 @@
+import NpmPackage from "./NpmPackage.interface.mjs";
+
 export default interface Submodule {
   name: string;
   path: string;
   url: string;
   branch: string;
+  package: NpmPackage | undefined;
   // distPath: string;
   installDependencies(): Promise<void>;
-  build(watch?:boolean): Promise<void>;
+  build(watch?: boolean): Promise<void>;
   copyNodeModules(): Promise<void>;
   // afterbuild(): void;
   watch(): Promise<void>;

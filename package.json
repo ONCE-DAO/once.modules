@@ -1,5 +1,7 @@
 {
   "name": "once.modules",
+  "package":"tla.EAM.Once",
+  "onceDependencies":["thinglish"],
   "version": "1.0.0",
   "description": "",
   "main": "index.js",

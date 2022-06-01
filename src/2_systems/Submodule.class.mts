@@ -5,7 +5,7 @@ import Submodule from "../3_services/Submodule.interface.mjs";
 import { NpmPackage } from "./NpmPackage.class.mjs";
 import { cpSync, existsSync } from "fs";
 import simpleGit, { SimpleGit } from "simple-git";
-import {
+import GitRepository, {
   GitRepositoryParameter,
   NotAGitRepositoryError,
 } from "../3_services/GitRepository.interface.mjs";
@@ -305,26 +305,61 @@ export default class DefaultSubmodule
     //   });
     // }
     if (existsSync(join(this.basePath, this.path, "tsconfig.json"))) {
-      console.log("TSCONFIG EXIST");
-      // execSync(`npx tsc`, {
-      //   stdio: "inherit",
-      //   cwd: join(this.basePath, this.path),
-      // });
+      execSync("npx tsc", { stdio: "inherit" });
+      console.log(`${this.name}@${this.branch} was builded using tsc`);
 
-      const child = spawn("npx", watch ? ["tsc", "--watch"] : ["tsc"], {
-        //@TODO print child output to main console
-        stdio: watch ? "ignore": "inherit",
+      if (watch) {
+        const child = spawn("npx", ["tsc", "--watch"], {
+          //@TODO print child output to main console
+          stdio: watch ? "ignore" : "inherit",
 
-        cwd: join(this.basePath, this.path),
-      });
-
-      console.log("foo!");
+          cwd: join(this.basePath, this.path),
+        });
+        console.log(`${this.name}@${this.branch} is watching for changes`);
+      }
     }
-
-    // throw new Error("Method not implemented.");
   }
   watch(): Promise<void> {
     throw new Error("Method not implemented.");
+  }
+
+  static ResolveDependencies(
+    a: Submodule & GitRepository,
+    b: Submodule & GitRepository
+  ): number {
+    // console.log(
+    //   `Sort: a [${a.package?.name} ${a.package?.onceDependencies?.join(
+    //     ","
+    //   )}] b [${b.package?.name}]  `
+    // );
+    if (
+      b.package?.name &&
+      a.package?.onceDependencies?.includes(b.package.name)
+    ) {
+      // console.log("a contains b as dependency. sort b before a");
+      return 1;
+    }
+
+    if (
+      a.package?.name &&
+      b.package?.onceDependencies?.includes(a.package.name)
+    ) {
+      // console.log("b contains a as dependency. sort a before b");
+      return -1;
+    }
+
+    if (a.package?.onceDependencies?.length) {
+      // console.log("a contains  dependencies. sort b before a");
+      return 1;
+    }
+
+    if (b.package?.onceDependencies?.length) {
+      // console.log("b contains  dependencies. sort a before b");
+      return -1;
+    }
+
+    // console.log("no dependency");
+    return 0;
   }
 
   static async initSubmodule(

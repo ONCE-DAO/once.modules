@@ -30,10 +30,9 @@ export class DefaultGitRepository implements GitRepository {
       .filter((e) => e);
 
     for (let module of modules) {
-      const active =
-        (await this.gitRepository.getConfig(`submodule.${module}.active`))
-          .value === "true";
-      // if (!active) continue;
+      const ignore =
+        (await this.getSubmoduleValue(`submodule.${module}.ignore`)) === "true";
+      if (ignore) continue;
       const branch = await this.getSubmoduleValue(`submodule.${module}.branch`);
 
       submodules.push(
@@ -45,16 +44,6 @@ export class DefaultGitRepository implements GitRepository {
           { baseDir: this.folderPath }
         )
       );
-
-      // submodules.push(
-      //   new DefaultSubmodule(
-      //     module.replace(`@${branch}`, ""),
-      //     await this.getSubmoduleValue(`submodule.${module}.path`),
-      //     await this.getSubmoduleValue(`submodule.${module}.url`),
-      //     branch,
-      //     this.folderPath
-      //   )
-      // );
     }
     return submodules;
   }
@@ -110,7 +99,10 @@ export class DefaultGitRepository implements GitRepository {
     this.folderPath = folderPath;
   }
   async checkout(branch: string): Promise<void> {
-    execSync(`git checkout ${branch}`,{stdio:"inherit",cwd:this.folderPath})
+    execSync(`git checkout ${branch}`, {
+      stdio: "inherit",
+      cwd: this.folderPath,
+    });
   }
 
   // get repoName(): Promise<string | undefined> {
