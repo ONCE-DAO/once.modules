@@ -38,7 +38,8 @@ describe("When initializing a git repository", () => {
     // expect(repo.remoteUrl).toBe("https://github.com/ONCE-DAO/testrepo.git");
     // expect(repo.currentBranch).toBe("main");
     const f = await repo.getSubmodules(DefaultSubmodule.initSubmodule);
-    console.log(f);
+    // console.log(f);
+    expect(1+2).toBe(3)
   });
 });
 

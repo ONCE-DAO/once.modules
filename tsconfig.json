@@ -3,6 +3,7 @@
   "compilerOptions": {
     "rootDir": "./src",
     "outDir": "../../dist/once.modules/main", 
+   
   },
   "include": [
     "./src/**/*"
