@@ -313,7 +313,7 @@ export default class DefaultSubmodule
 
       const child = spawn("npx", watch ? ["tsc", "--watch"] : ["tsc"], {
         //@TODO print child output to main console
-        stdio: "ignore",
+        stdio: watch ? "ignore": "inherit",
 
         cwd: join(this.basePath, this.path),
       });
