@@ -277,7 +277,14 @@ export default class DefaultSubmodule
   }
 
   private get node_modules_dist() {
-    return join(this.distFolder, "..", "..", "node_modules");
+    return join(
+      this.distFolder,
+      "..",
+      "..",
+      this.name,
+      this.branch,
+      "node_modules"
+    );
   }
   private get node_modules() {
     return join(this.basePath, this.path, "node_modules");
