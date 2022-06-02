@@ -8,6 +8,7 @@ export class NpmPackage {
   namespace?: string;
   linkPackage?: boolean;
   scripts?: any;
+  devDependencies?:any
 
   static getByFolder(path: string) {
     return this.getByPath(join(path, "package.json"));

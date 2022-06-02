@@ -5,5 +5,6 @@ export default interface NpmPackage {
   namespace?: string;
   linkPackage?: boolean;
   scripts?: any;
+  devDependencies?: any;
   onceDependencies?: string[];
 }
