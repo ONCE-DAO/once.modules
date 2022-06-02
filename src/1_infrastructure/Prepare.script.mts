@@ -1,3 +1,4 @@
+import { mkdirSync } from 'fs';
 // import { execSync } from "child_process";
 import { execSync } from "child_process";
 import { DefaultGitRepository } from "../2_systems/GitRepository.class.mjs";
@@ -24,3 +25,5 @@ for (let sub of subs) {
   await sub.checkout(sub.branch);
   await sub.installDependencies();
 }
+
+mkdirSync("Scenarios")
