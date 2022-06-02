@@ -10,6 +10,7 @@ const repo = await DefaultGitRepository.init({ baseDir: process.cwd() });
 const subs = await repo.getSubmodules(DefaultSubmodule.initSubmodule);
 
 for (let sub of subs) {
+  if (sub.folderPath.includes("3rdParty")) continue;
   await sub.checkout(sub.branch);
   await sub.installDependencies();
 }

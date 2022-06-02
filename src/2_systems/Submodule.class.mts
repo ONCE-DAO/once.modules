@@ -305,7 +305,10 @@ export default class DefaultSubmodule
     //   });
     // }
     if (existsSync(join(this.basePath, this.path, "tsconfig.json"))) {
-      execSync("npx tsc", { stdio: "inherit" });
+      execSync("npx tsc", {
+        stdio: "inherit",
+        cwd: join(this.basePath, this.path)
+      });
       console.log(`${this.name}@${this.branch} was builded using tsc`);
 
       if (watch) {
