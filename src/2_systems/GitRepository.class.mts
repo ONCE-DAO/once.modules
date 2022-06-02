@@ -4,7 +4,7 @@ import GitRepository, {
   GitRepositoryParameter,
   NotAGitRepositoryError,
 } from "../3_services/GitRepository.interface.mjs";
-import SubmoduleInterface from "../3_services/Submodule.interface.mjs";
+import Submodule from "../3_services/Submodule.interface.mjs";
 // import DefaultSubmodule from "./Submodule.class.mjs";
 
 export class DefaultGitRepository implements GitRepository {
@@ -20,9 +20,11 @@ export class DefaultGitRepository implements GitRepository {
       url: string,
       branch: string,
       { baseDir, clone, init }: GitRepositoryParameter
-    ) => Promise<SubmoduleInterface & GitRepository>
-  ): Promise<(SubmoduleInterface & GitRepository)[]> {
-    const submodules: (SubmoduleInterface & GitRepository)[] = [];
+    ) => Promise<Submodule & GitRepository>
+  ): Promise<(Submodule & GitRepository)[]> {
+
+    
+    const submodules: (Submodule & GitRepository)[] = [];
     const modules = execSync("git submodule foreach --quiet 'echo $name'", {
       encoding: "utf8",
     })

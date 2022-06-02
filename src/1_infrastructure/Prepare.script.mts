@@ -1,4 +1,5 @@
-import { mkdirSync } from 'fs';
+import { join } from "path";
+import { existsSync, mkdirSync } from "fs";
 // import { execSync } from "child_process";
 import { execSync } from "child_process";
 import { DefaultGitRepository } from "../2_systems/GitRepository.class.mjs";
@@ -17,8 +18,10 @@ for (let sub of subs) {
     continue;
   }
   if (sub.package?.devDependencies && sub.package.devDependencies["ts-patch"]) {
+    console.log("npx ts-patch install @", sub.folderPath);
     execSync("npx ts-patch install", {
       stdio: "inherit",
+      cwd: sub.folderPath,
     });
   }
 
@@ -26,4 +29,4 @@ for (let sub of subs) {
   await sub.installDependencies();
 }
 
-mkdirSync("Scenarios")
+!existsSync("Scenarios") && mkdirSync("Scenarios");
