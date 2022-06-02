@@ -10,6 +10,7 @@ const subs = await repo.getSubmodules(DefaultSubmodule.initSubmodule);
 
 console.log(subs.map((s) => s.name));
 console.log(subs.sort(DefaultSubmodule.ResolveDependencies).map((s) => s.name));
+
 for (let sub of subs.sort(DefaultSubmodule.ResolveDependencies)) {
   console.log(sub.folderPath, sub.folderPath.includes("3rdParty"))
   if (sub.folderPath.includes("3rdParty")) continue;

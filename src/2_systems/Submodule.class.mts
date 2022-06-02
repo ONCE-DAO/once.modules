@@ -255,7 +255,7 @@ import GitRepository, {
 
 export default class DefaultSubmodule
   extends DefaultGitRepository
-  implements Submodule
+  implements Submodule, GitRepository
 {
   name: string;
   path: string;
@@ -304,10 +304,12 @@ export default class DefaultSubmodule
     //     stdio: "inherit",
     //   });
     // }
+
+    
     if (existsSync(join(this.basePath, this.path, "tsconfig.json"))) {
       execSync("npx tsc", {
         stdio: "inherit",
-        cwd: join(this.basePath, this.path)
+        cwd: join(this.basePath, this.path),
       });
       console.log(`${this.name}@${this.branch} was builded using tsc`);
 
