@@ -9,6 +9,7 @@ export default interface GitRepository {
 
   // getAndInstallSubmodule(repoPath: string, path: string): Promise<Submodule>;
   // addSubmodule(repoToAdd: GitRepository): Promise<Submodule>;
+  updateSubmodules():void
   getSubmodules(
     submoduleConstructor: (
       name: string,

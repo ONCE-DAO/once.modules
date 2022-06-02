@@ -325,18 +325,18 @@ export default class DefaultSubmodule
         console.log(`${this.name}@${this.branch} is watching for changes`);
       }
     }
-    if (this.name !== 'thinglish.transformer') {
-      if (ONCEClass === undefined) {
-        ONCEClass = (await import("../../../../dist/once.merge/main/1_infrastructure/OnceKernel.class.mjs")).default;
-        await ONCEClass.start();
+    // if (this.name !== 'thinglish.transformer') {
+    //   if (ONCEClass === undefined) {
+    //     ONCEClass = (await import("../../../../dist/once.merge/main/1_infrastructure/OnceKernel.class.mjs")).default;
+    //     await ONCEClass.start();
 
-      }
-      let UcpComponentDescriptor = (await import("../../../../dist/once.merge/main/2_systems/ServerSideUcpComponentDescriptor.class.mjs")).default;
-      let compDesc = new UcpComponentDescriptor().init({ path: join(this.basePath, this.path), relativePath: this.path });
+    //   }
+    //   let UcpComponentDescriptor = (await import("../../../../dist/once.merge/main/2_systems/ServerSideUcpComponentDescriptor.class.mjs")).default;
+    //   let compDesc = new UcpComponentDescriptor().init({ path: join(this.basePath, this.path), relativePath: this.path });
 
 
-      compDesc.writeToDistPath();
-    }
+    //   compDesc.writeToDistPath();
+    // }
   }
   watch(): Promise<void> {
     throw new Error("Method not implemented.");

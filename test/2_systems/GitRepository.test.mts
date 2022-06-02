@@ -9,17 +9,20 @@ import { NotAGitRepositoryError } from "../../src/3_services/GitRepository.inter
 
 let tmpDir = "";
 
+const repoName = "testdata-repository"
+const repoUrl = `https://github.com/ONCE-DAO/${repoName}.git`
+
 beforeAll(async () => {
   tmpDir = mkdtempSync(path.join(tmpdir(), "testRun-"));
   const git = simpleGit(tmpDir, {});
-  await git.clone("https://github.com/ONCE-DAO/testrepo.git");
+  await git.clone(repoUrl);
 });
 
 describe("When initializing a git repository", () => {
   test("remote url and current branch have to be detected", async () => {
-    const testRepoPath = join(tmpDir, "testRepo");
+    const testRepoPath = join(tmpDir, repoName);
     const repo = await DefaultGitRepository.init({ baseDir: testRepoPath });
-    expect(repo.remoteUrl).toBe("https://github.com/ONCE-DAO/testrepo.git");
+    expect(repo.remoteUrl).toBe(repoUrl);
     expect(repo.currentBranch).toBe("main");
   });
 
@@ -34,12 +37,11 @@ describe("When initializing a git repository", () => {
   });
 
   test("remote url and current branch have to be detected", async () => {
-    const repo = await DefaultGitRepository.init({ baseDir: process.cwd() });
-    // expect(repo.remoteUrl).toBe("https://github.com/ONCE-DAO/testrepo.git");
-    // expect(repo.currentBranch).toBe("main");
-    const f = await repo.getSubmodules(DefaultSubmodule.initSubmodule);
-    // console.log(f);
-    expect(1+2).toBe(3)
+    const testRepoPath = join(tmpDir, repoName);
+    const repo = await DefaultGitRepository.init({ baseDir: testRepoPath });
+    repo.updateSubmodules();
+    const submodules = await repo.getSubmodules(DefaultSubmodule.initSubmodule);
+    expect(submodules.length).toBe(1)
   });
 });
 

@@ -13,6 +13,13 @@ export class DefaultGitRepository implements GitRepository {
   remoteUrl: string;
   private gitRepository: SimpleGit;
 
+  updateSubmodules(){
+    execSync("git submodule update --init --remote --recursive", {
+      stdio: "inherit",
+      cwd: this.folderPath
+    })
+  }
+
   async getSubmodules(
     initSubmodule: (
       name: string,
@@ -27,6 +34,7 @@ export class DefaultGitRepository implements GitRepository {
     const submodules: (Submodule & GitRepository)[] = [];
     const modules = execSync("git submodule foreach --quiet 'echo $name'", {
       encoding: "utf8",
+      cwd: this.folderPath
     })
       .split("\n")
       .filter((e) => e);
