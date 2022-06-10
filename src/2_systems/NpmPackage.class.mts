@@ -1,5 +1,10 @@
-import { existsSync, readFileSync, writeFileSync } from "fs";
+import { existsSync, readFileSync } from "fs";
 import { join } from "path";
+
+
+// interface foo{
+
+// }
 
 export class NpmPackage {
   path?: string;
@@ -9,6 +14,8 @@ export class NpmPackage {
   linkPackage?: boolean;
   scripts?: any;
   devDependencies?:any
+
+
 
   static getByFolder(path: string) {
     return this.getByPath(join(path, "package.json"));

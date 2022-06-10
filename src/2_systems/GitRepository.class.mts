@@ -87,12 +87,12 @@ export class DefaultGitRepository implements GitRepository {
     );
   }
 
-  private static async getRemoteUrl(gitRepository: SimpleGit): Promise<string> {
+  protected static async getRemoteUrl(gitRepository: SimpleGit): Promise<string> {
     const config = await gitRepository.getConfig("remote.origin.url");
     return config.value || "";
   }
 
-  private static async getBranch(gitRepository: SimpleGit): Promise<string> {
+  protected static async getBranch(gitRepository: SimpleGit): Promise<string> {
     const status = await gitRepository.status();
     return status.current || "";
   }
