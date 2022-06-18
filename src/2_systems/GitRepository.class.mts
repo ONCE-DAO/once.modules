@@ -13,62 +13,6 @@ export class DefaultGitRepository implements GitRepository {
   remoteUrl: string;
   private gitRepository: SimpleGit;
 
-  updateSubmodules(){
-    execSync("git submodule update --init --remote --recursive", {
-      stdio: "inherit",
-      cwd: this.folderPath
-    })
-  }
-
-  async getSubmodules(
-    initSubmodule: (
-      name: string,
-      path: string,
-      url: string,
-      branch: string,
-      { baseDir, clone, init }: GitRepositoryParameter
-    ) => Promise<Submodule & GitRepository>
-  ): Promise<(Submodule & GitRepository)[]> {
-
-    
-    const submodules: (Submodule & GitRepository)[] = [];
-    const modules = execSync("git submodule foreach --quiet 'echo $name'", {
-      encoding: "utf8",
-      cwd: this.folderPath
-    })
-      .split("\n")
-      .filter((e) => e);
-
-    for (let module of modules) {
-      const ignore =
-        (await this.getSubmoduleValue(`submodule.${module}.ignore`)) === "true";
-      if (ignore) continue;
-      const branch = await this.getSubmoduleValue(`submodule.${module}.branch`);
-
-      submodules.push(
-        await initSubmodule(
-          module.replace(`@${branch}`, ""),
-          await this.getSubmoduleValue(`submodule.${module}.path`),
-          await this.getSubmoduleValue(`submodule.${module}.url`),
-          branch,
-          { baseDir: this.folderPath }
-        )
-      );
-    }
-    return submodules;
-  }
-
-  private async getSubmoduleValue(key: string): Promise<string> {
-    const rawResult = await this.gitRepository.raw(
-      "config",
-      "--file",
-      ".gitmodules",
-      "--get",
-      key
-    );
-    return rawResult.replace(/\n$/, "");
-  }
-
   static async init({
     baseDir,
     clone,
@@ -108,6 +52,53 @@ export class DefaultGitRepository implements GitRepository {
     this.remoteUrl = remoteUrl;
     this.folderPath = folderPath;
   }
+
+  updateSubmodules() {
+    execSync("git submodule update --init --remote --recursive", {
+      stdio: "inherit",
+      cwd: this.folderPath
+    })
+  }
+
+  async getSubmodules(
+    initSubmodule: (
+      name: string,
+      path: string,
+      url: string,
+      branch: string,
+      { baseDir, clone, init }: GitRepositoryParameter
+    ) => Promise<Submodule & GitRepository>
+  ): Promise<(Submodule & GitRepository)[]> {
+
+
+    const submodules: (Submodule & GitRepository)[] = [];
+    const modules = execSync("git submodule foreach --quiet 'echo $name'", {
+      encoding: "utf8",
+      cwd: this.folderPath
+    })
+      .split("\n")
+      .filter((e) => e);
+
+    for (let module of modules) {
+      const ignore =
+        (await this.getSubmoduleValue(`submodule.${module}.ignore`)) === "true";
+      if (ignore) continue;
+      const branch = await this.getSubmoduleValue(`submodule.${module}.branch`);
+
+      submodules.push(
+        await initSubmodule(
+          module.replace(`@${branch}`, ""),
+          await this.getSubmoduleValue(`submodule.${module}.path`),
+          await this.getSubmoduleValue(`submodule.${module}.url`),
+          branch,
+          { baseDir: this.folderPath }
+        )
+      );
+    }
+    return submodules;
+  }
+
+
   async checkout(branch: string): Promise<void> {
     execSync(`git checkout ${branch}`, {
       stdio: "inherit",
@@ -115,6 +106,16 @@ export class DefaultGitRepository implements GitRepository {
     });
   }
 
+  private async getSubmoduleValue(key: string): Promise<string> {
+    const rawResult = await this.gitRepository.raw(
+      "config",
+      "--file",
+      ".gitmodules",
+      "--get",
+      key
+    );
+    return rawResult.replace(/\n$/, "");
+  }
   // get repoName(): Promise<string | undefined> {
   //   return new Promise(async (resolve) => {
   //     if (!this.gitRepo) return undefined;

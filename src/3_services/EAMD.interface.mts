@@ -1,7 +1,10 @@
 import GitRepository from "./GitRepository.interface.mjs";
+import Scenario from "./Scenario.interface.mjs";
 
 export default interface EAMD extends GitRepository {
   installationDirectory: string;
+  build(watch?: boolean): Promise<void>
+  scenario: Scenario
   // installedAt: Date | undefined;
   // preferredFolder: string[];
   // eamdDirectory: string | undefined;

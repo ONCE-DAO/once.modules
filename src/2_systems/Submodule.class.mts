@@ -29,7 +29,7 @@ export default class DefaultSubmodule
     branch: string,
     basePath: string,
     gitRepo: SimpleGit,
-    distFolder:string="dist"
+    distFolder: string = "dist"
   ) {
     const folderPath = join(basePath, path);
     super(gitRepo, branch, url, folderPath);
@@ -64,20 +64,17 @@ export default class DefaultSubmodule
 
 
     if (existsSync(join(this.basePath, this.path, "tsconfig.json"))) {
-      console.log("foo")
       execSync("npx tsc", {
         stdio: 'inherit',
         cwd: join(this.basePath, this.path),
       });
 
-
       console.log(`${this.name}@${this.branch} was builded using tsc`);
 
       if (watch) {
 
-        const child = spawn("npx", ["tsc", "--watch", "--preserveWatchOutput"], {
+        spawn("npx", ["tsc", "--watch", "--preserveWatchOutput"], {
           stdio: 'inherit',
-
           cwd: join(this.basePath, this.path),
         });
 

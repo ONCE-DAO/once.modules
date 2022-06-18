@@ -1,8 +1,13 @@
 import simpleGit, { SimpleGit } from "simple-git";
 import { DefaultGitRepository } from "../2_systems/GitRepository.class.mjs";
+import DefaultScenario from "../2_systems/Scenario.class.mjs";
+import DefaultSubmodule from "../2_systems/Submodule.class.mjs";
 import EAMD from "../3_services/EAMD.interface.mjs";
+import ScenarioInterface from "../3_services/Scenario.interface.mjs";
+
 export default class DefaultEAMD extends DefaultGitRepository implements EAMD {
   installationDirectory: string = "";
+  scenario: ScenarioInterface;
 
   static async getInstance(baseDirectory: string): Promise<EAMD> {
     const gitRepository = simpleGit(baseDirectory, { binary: "git" });
@@ -13,36 +18,19 @@ export default class DefaultEAMD extends DefaultGitRepository implements EAMD {
 
   constructor(baseDirectory: string, gitRepository: SimpleGit, branch: string, remoteUrl: string) {
     super(gitRepository, branch, remoteUrl, baseDirectory)
+    this.scenario = new DefaultScenario(this)
   }
 
-  // folderPath: string;
-  // currentBranch: string;    
-  // remoteUrl: string;
-  // getSubmodules(): Promise<(SubmoduleInterface & GitRepository)[]> {
-  //   throw new Error("Method not implemented.");
-  // }
-  // init({
-  //   baseDir,
-  //   clone,
-  //   init,
-  // }: GitRepositoryParameter): Promise<GitRepository> {
-  //   throw new Error("Method not implemented.");
-  // }
-  // installedAt: Date | undefined;
-  // preferredFolder: string[];
-  // installationDirectory: string | undefined;
-  // eamdDirectory: string | undefined;
+  async build(watch: boolean = false) {
+    const subs = await this.getSubmodules(DefaultSubmodule.initSubmodule);
+    for (let sub of subs.sort(DefaultSubmodule.ResolveDependencies)) {
+      console.log(sub.folderPath, sub.folderPath.includes("3rdParty"))
+      if (sub.folderPath.includes("3rdParty")) continue;
+      console.log(`run build for ${sub.name}@${sub.branch}`);
+      await sub.copyNodeModules();
+      console.log("node_modules copied");
 
-  // constructor() {
-  //   this.folderPath = "";
-  //   this.currentBranch = "";
-  //   this.remoteUrl = "";
-  //   this.preferredFolder = [];
-  // }
-  // updateSubmodules(): void {
-  //   throw new Error("Method not implemented.");
-  // }
-  // checkout(branch: string): Promise<void> {
-  //   throw new Error("Method not implemented.");
-  // }
+      await sub.build(watch);
+    }
+  }
 }
