@@ -21,7 +21,7 @@ export default class DefaultEAMD extends DefaultGitRepository implements EAMD {
     this.scenario = new DefaultScenario(this)
   }
 
-  async build(watch: boolean = false) {
+  async build(watch: boolean = false): Promise<void> {
     const subs = await this.getSubmodules(DefaultSubmodule.initSubmodule);
     for (let sub of subs.sort(DefaultSubmodule.ResolveDependencies)) {
       console.log(sub.folderPath, sub.folderPath.includes("3rdParty"))
