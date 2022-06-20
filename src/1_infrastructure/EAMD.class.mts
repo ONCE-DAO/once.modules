@@ -1,3 +1,4 @@
+import { existsSync, rmSync, writeFileSync } from "fs";
 import { join } from "path";
 import simpleGit, { SimpleGit } from "simple-git";
 import { DefaultGitRepository } from "../2_systems/GitRepository.class.mjs";
@@ -7,6 +8,8 @@ import EAMD from "../3_services/EAMD.interface.mjs";
 import GitRepository from "../3_services/GitRepository.interface.mjs";
 import Scenario from "../3_services/Scenario.interface.mjs";
 import Submodule from "../3_services/Submodule.interface.mjs";
+
+type GitRepositorySubmodule = GitRepository & Submodule;
 
 export default class DefaultEAMD extends DefaultGitRepository implements EAMD {
   installationDirectory: string;
@@ -29,6 +32,8 @@ export default class DefaultEAMD extends DefaultGitRepository implements EAMD {
 
   async build(watch: boolean = false): Promise<void> {
     const submodules = await this.getSortedSubmodules();
+    await this.createPathsConfig(submodules);
+
     for (let sub of submodules) {
 
       console.log(`run build for ${sub.name}@${sub.branch}`);
@@ -39,17 +44,39 @@ export default class DefaultEAMD extends DefaultGitRepository implements EAMD {
     }
   }
 
-  async runForSubmodules(fn: (submodule: Submodule & GitRepository) => Promise<void>): Promise<void> {
+  private async createPathsConfig(submodules?: GitRepositorySubmodule[]) {
+    if (submodules === undefined) {
+      submodules = await this.getSortedSubmodules();
+    }
+    const fileName = "tsconfigPaths.json"
+
+    let data = {
+      "compilerOptions": {
+        "baseUrl": ".",
+        "paths": {} as { [key: string]: [string] }
+      }
+    };
+
+    for (const submodule of submodules) {
+      const ior = `ior:esm:/${submodule.package.namespace}.${submodule.package.name}[${submodule.branch}]`;
+      data.compilerOptions.paths[ior] = [submodule.distributionFolder];
+    }
+
+    writeFileSync(fileName, JSON.stringify(data, null, 2), { encoding: 'utf8' });
+
+  }
+
+  async runForSubmodules(fn: (submodule: GitRepositorySubmodule) => Promise<void>): Promise<void> {
     for (let sub of await this.getSortedSubmodules()) {
       await fn(sub)
     }
   }
 
-  private getDistributionFolderFor(sub: Submodule & GitRepository): string {
+  private getDistributionFolderFor(sub: GitRepositorySubmodule): string {
     return join(this.scenario.scenarioPath, ...sub.package.namespace.split("."), sub.package.name, sub.branch)
   }
 
-  private async getSortedSubmodules(): Promise<(Submodule & GitRepository)[]> {
+  private async getSortedSubmodules(): Promise<GitRepositorySubmodule[]> {
     const submodules = (await this.getSubmodules(DefaultSubmodule.initSubmodule))
       .sort(DefaultSubmodule.ResolveDependencies)
       .filter(x => !x.folderPath.includes("3rdParty"))
