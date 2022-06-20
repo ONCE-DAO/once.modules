@@ -5,7 +5,8 @@
     "outDir": "../../../../../../Scenarios/localhost/tla/EAM/Once/modules/main/dist/"
   },
   "include": [
-    "./src/**/*"
+    "./src/**/*",
+    "../../../../../../Scenarios/localhost"
   ],
   "exclude": [
     "test",
