@@ -4,6 +4,7 @@ import { EMPTY_NAME, EMPTY_NAMESPACE } from "../1_infrastructure/Constants.mjs";
 import NpmPackage from "../3_services/NpmPackage.interface.mjs";
 
 export class DefaultNpmPackage implements NpmPackage {
+  main: string | undefined;
   onceDependencies?: string[] | undefined;
   path?: string;
   name: string = EMPTY_NAME;

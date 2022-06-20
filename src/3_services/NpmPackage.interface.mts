@@ -7,4 +7,6 @@ export default interface NpmPackage {
   scripts?: any;
   devDependencies?: any;
   onceDependencies?: string[];
+  main?: string;
+  types?: string;
 }

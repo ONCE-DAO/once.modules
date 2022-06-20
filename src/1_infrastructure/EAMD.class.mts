@@ -53,13 +53,22 @@ export default class DefaultEAMD extends DefaultGitRepository implements EAMD {
     let data = {
       "compilerOptions": {
         "baseUrl": ".",
-        "paths": {} as { [key: string]: [string] }
+        "paths": {} as { [key: string]: string[] }
       }
     };
 
     for (const submodule of submodules) {
       const ior = `ior:esm:/${submodule.package.namespace}.${submodule.package.name}[${submodule.branch}]`;
-      data.compilerOptions.paths[ior] = [submodule.distributionFolder];
+      if (submodule.package.main === undefined) throw new Error("Missing main in Package.json in " + submodule.folderPath);
+      let modulePath = join(submodule.distributionFolder, submodule.package.main);
+      const value: string[] = [modulePath];
+
+      if (submodule.package.types !== undefined) {
+        value.unshift(join(submodule.distributionFolder, submodule.package.types));
+      } else if (submodule.package.main.endsWith('.mjs')) {
+        value.unshift(join(submodule.distributionFolder, submodule.package.main.replace(/\.m[jt]s$/, '.d.mts')));
+      }
+      data.compilerOptions.paths[ior] = value;
     }
 
     writeFileSync(fileName, JSON.stringify(data, null, 2), { encoding: 'utf8' });
