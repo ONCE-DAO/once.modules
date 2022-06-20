@@ -3,7 +3,7 @@ import { join } from "path";
 import { execSync, spawn } from "child_process";
 import Submodule from "../3_services/Submodule.interface.mjs";
 import { DefaultNpmPackage } from "./NpmPackage.class.mjs";
-import { cpSync, existsSync, rmdirSync, rmSync } from "fs";
+import { cpSync, existsSync, rmdirSync, rmSync, symlinkSync } from "fs";
 import simpleGit, { SimpleGit } from "simple-git";
 import GitRepository, {
   GitRepositoryParameter,
@@ -154,6 +154,15 @@ export default class DefaultSubmodule
       cwd: join(this.basePath, this.path),
     });
     console.log(`${this.name}@${this.branch} was builded using tsc`);
+
+
+    try {
+      rmSync(join(this.basePath, this.path, "dist"), { recursive: true })
+    } catch {
+
+    }
+
+    symlinkSync(join(this.basePath, this.distributionFolder), join(this.basePath, this.path, "dist"))
 
     if (watch) {
       spawn("npx", ["tsc", "--watch", "--preserveWatchOutput"], {
