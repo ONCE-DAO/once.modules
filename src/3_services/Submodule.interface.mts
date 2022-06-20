@@ -6,7 +6,7 @@ export default interface Submodule {
   url: string;
   branch: string;
   package: NpmPackage;
-  // distPath: string;
+  distributionFolder: string;
   installDependencies(): Promise<void>;
   build(watch?: boolean): Promise<void>;
   copyNodeModules(): Promise<void>;

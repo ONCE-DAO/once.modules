@@ -1,6 +1,6 @@
 {
   "name": "once.modules",
-  "package": "tla.EAM.Once",
+  "namespace": "tla.EAM",
   "onceDependencies": [
     "thinglish",
     "once.merge"

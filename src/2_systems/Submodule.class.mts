@@ -3,7 +3,7 @@ import { join } from "path";
 import { execSync, spawn } from "child_process";
 import Submodule from "../3_services/Submodule.interface.mjs";
 import { DefaultNpmPackage } from "./NpmPackage.class.mjs";
-import { cpSync, existsSync } from "fs";
+import { cpSync, existsSync, rmdirSync, rmSync } from "fs";
 import simpleGit, { SimpleGit } from "simple-git";
 import GitRepository, {
   GitRepositoryParameter,
@@ -19,7 +19,7 @@ export default class DefaultSubmodule
   branch: string;
   basePath: string;
   package: DefaultNpmPackage;
-  distFolder: string = "dist";
+  distributionFolder: string = "dist";
 
   static ResolveDependencies(
     a: Submodule & GitRepository,
@@ -99,7 +99,7 @@ export default class DefaultSubmodule
     this.branch = branch;
     this.basePath = basePath;
     this.package = DefaultNpmPackage.getByFolder(folderPath);
-    this.distFolder = distFolder;
+    this.distributionFolder = distFolder;
   }
 
   async installDependencies(): Promise<void> {
@@ -137,8 +137,11 @@ export default class DefaultSubmodule
   }
 
   async copyNodeModules(): Promise<void> {
-    if (existsSync(this.node_modules))
-      cpSync(this.node_modules, join(this.distFolder, "node_modules"), { recursive: true, preserveTimestamps: true });
+    if (existsSync(this.node_modules)) {
+      existsSync(this.distribution_node_modules) && rmSync(this.distribution_node_modules, { recursive: true })
+      console.log(`copy node_modules from ${this.node_modules} to ${this.distribution_node_modules}`)
+      cpSync(this.node_modules, this.distribution_node_modules, { recursive: true, preserveTimestamps: true, force: true });
+    }
   }
 
   watch(): Promise<void> {
@@ -163,5 +166,9 @@ export default class DefaultSubmodule
 
   private get node_modules() {
     return join(this.basePath, this.path, "node_modules");
+  }
+
+  private get distribution_node_modules() {
+    return join(this.basePath, this.distributionFolder, "node_modules");
   }
 }

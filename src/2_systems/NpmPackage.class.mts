@@ -8,8 +8,7 @@ export class DefaultNpmPackage implements NpmPackage {
   path?: string;
   name: string = EMPTY_NAME;
   version?: string;
-  package: string = EMPTY_NAMESPACE;
-  namespace?: string;
+  namespace: string = EMPTY_NAMESPACE;
   linkPackage?: boolean;
   scripts?: any;
   devDependencies?: any

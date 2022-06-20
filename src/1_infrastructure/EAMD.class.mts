@@ -16,7 +16,8 @@ export default class DefaultEAMD extends DefaultGitRepository implements EAMD {
     const gitRepository = simpleGit(scenario.eamdPath, { binary: "git" });
     const branch = await DefaultEAMD.getBranch(gitRepository)
     const remoteUrl = await DefaultEAMD.getRemoteUrl(gitRepository)
-    return new DefaultEAMD(scenario, gitRepository, branch, remoteUrl)
+    const eamd = new DefaultEAMD(scenario, gitRepository, branch, remoteUrl)
+    return eamd;
   }
 
   constructor(scenario: Scenario, gitRepository: SimpleGit, branch: string, remoteUrl: string) {
@@ -24,6 +25,7 @@ export default class DefaultEAMD extends DefaultGitRepository implements EAMD {
     this.installationDirectory = scenario.eamdPath;
     this.scenario = scenario;
   }
+
 
   async build(watch: boolean = false): Promise<void> {
     for (let sub of await this.getSortedSubmodules()) {
@@ -42,13 +44,18 @@ export default class DefaultEAMD extends DefaultGitRepository implements EAMD {
     }
   }
 
-  private getDistFolderForSubmodule(submodule: Submodule) {
-    return join(this.scenario.scenarioPath, submodule.package.package)
+  private getDistributionFolderFor(sub: Submodule & GitRepository): string {
+    return join(this.scenario.scenarioPath, ...sub.package.namespace.split("."), sub.package.name, sub.branch)
   }
 
   private async getSortedSubmodules(): Promise<(Submodule & GitRepository)[]> {
-    return (await this.getSubmodules(DefaultSubmodule.initSubmodule))
+    const submodules = (await this.getSubmodules(DefaultSubmodule.initSubmodule))
       .sort(DefaultSubmodule.ResolveDependencies)
       .filter(x => !x.folderPath.includes("3rdParty"))
+    submodules.forEach(sub => {
+      sub.distributionFolder = this.getDistributionFolderFor(sub)
+      return sub
+    })
+    return submodules
   }
 }
