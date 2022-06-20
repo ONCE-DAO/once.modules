@@ -3,7 +3,7 @@ import { join } from "path";
 import { execSync, spawn } from "child_process";
 import Submodule from "../3_services/Submodule.interface.mjs";
 import { DefaultNpmPackage } from "./NpmPackage.class.mjs";
-import { cpSync, existsSync, rmdirSync, rmSync, symlinkSync } from "fs";
+import { cpSync, existsSync, rmdirSync, rmSync, symlinkSync, unlink, unlinkSync } from "fs";
 import simpleGit, { SimpleGit } from "simple-git";
 import GitRepository, {
   GitRepositoryParameter,
@@ -156,13 +156,8 @@ export default class DefaultSubmodule
     console.log(`${this.name}@${this.branch} was builded using tsc`);
 
 
-    try {
-      rmSync(join(this.basePath, this.path, "dist"), { recursive: true })
-    } catch {
-
-    }
-
-    symlinkSync(join(this.basePath, this.distributionFolder), join(this.basePath, this.path, "dist"))
+    this.createDistSymlink();
+    this.copyPackageJson();
 
     if (watch) {
       spawn("npx", ["tsc", "--watch", "--preserveWatchOutput"], {
@@ -171,11 +166,54 @@ export default class DefaultSubmodule
       });
       console.log(`${this.name}@${this.branch} is watching for changes`);
     }
+
+
+  }
+
+  private createDistSymlink() {
+
+    const targetDir = join(this.basePath, this.path, "dist");
+
+    try {
+      rmSync(targetDir, { recursive: true })
+    } catch {
+    }
+
+    try {
+      unlinkSync(targetDir);
+    } catch {
+    }
+
+
+    symlinkSync(this.distribution_dist, targetDir)
+  }
+
+  private copyPackageJson() {
+    const packageOriginalPath = this.packageJsonPath;
+    if (existsSync(packageOriginalPath)) {
+
+      existsSync(this.distribution_packageJsonPath) && rmSync(this.distribution_packageJsonPath)
+      console.log(`copy package.json from ${packageOriginalPath} to ${this.distribution_packageJsonPath}`)
+      cpSync(packageOriginalPath, this.distribution_packageJsonPath);
+    }
+  }
+
+  private get packageJsonPath() {
+    return join(this.basePath, this.path, "package.json");
+  }
+
+  private get distribution_packageJsonPath() {
+    return join(this.basePath, this.distributionFolder, "package.json");
+  }
+
+  private get distribution_dist() {
+    return join(this.basePath, this.distributionFolder, "dist");
   }
 
   private get node_modules() {
     return join(this.basePath, this.path, "node_modules");
   }
+
 
   private get distribution_node_modules() {
     return join(this.basePath, this.distributionFolder, "node_modules");

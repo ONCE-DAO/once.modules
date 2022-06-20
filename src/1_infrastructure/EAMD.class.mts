@@ -28,7 +28,8 @@ export default class DefaultEAMD extends DefaultGitRepository implements EAMD {
 
 
   async build(watch: boolean = false): Promise<void> {
-    for (let sub of await this.getSortedSubmodules()) {
+    const submodules = await this.getSortedSubmodules();
+    for (let sub of submodules) {
 
       console.log(`run build for ${sub.name}@${sub.branch}`);
       await sub.copyNodeModules();
