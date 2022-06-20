@@ -1,4 +1,5 @@
 export default interface Scenario {
     name: string;
-    path: string;
+    eamdPath: string;
+    scenarioPath: string;
 }

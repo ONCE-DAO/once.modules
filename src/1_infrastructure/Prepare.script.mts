@@ -1,22 +1,17 @@
-import { join } from "path";
 import { existsSync, mkdirSync } from "fs";
-// import { execSync } from "child_process";
 import { execSync } from "child_process";
-import { DefaultGitRepository } from "../2_systems/GitRepository.class.mjs";
-import DefaultSubmodule from "../2_systems/Submodule.class.mjs";
+import Scenario from "../2_systems/Scenario.class.mjs";
+import EAMD from "./EAMD.class.mjs";
+import Submodule from "../3_services/Submodule.interface.mjs";
+import GitRepository from "../3_services/GitRepository.interface.mjs";
 
 execSync("npx ts-patch install", {
   stdio: "inherit",
 });
 
-const repo = await DefaultGitRepository.init({ baseDir: process.cwd() });
-const subs = await repo.getSubmodules(DefaultSubmodule.initSubmodule);
+const eamd = await EAMD.getInstance(Scenario.Default)
 
-for (let sub of subs) {
-  if (sub.folderPath.includes("3rdParty")) {
-    console.log("skip ", sub.name);
-    continue;
-  }
+await eamd.runForSubmodules(async (sub: Submodule & GitRepository) => {
   if (sub.package?.devDependencies && sub.package.devDependencies["ts-patch"]) {
     console.log("npx ts-patch install @", sub.folderPath);
     execSync("npx ts-patch install", {
@@ -27,6 +22,6 @@ for (let sub of subs) {
 
   await sub.checkout(sub.branch);
   await sub.installDependencies();
-}
+});
 
 !existsSync("Scenarios") && mkdirSync("Scenarios");

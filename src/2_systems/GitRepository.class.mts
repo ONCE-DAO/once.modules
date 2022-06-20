@@ -98,7 +98,6 @@ export class DefaultGitRepository implements GitRepository {
     return submodules;
   }
 
-
   async checkout(branch: string): Promise<void> {
     execSync(`git checkout ${branch}`, {
       stdio: "inherit",
@@ -116,11 +115,4 @@ export class DefaultGitRepository implements GitRepository {
     );
     return rawResult.replace(/\n$/, "");
   }
-  // get repoName(): Promise<string | undefined> {
-  //   return new Promise(async (resolve) => {
-  //     if (!this.gitRepo) return undefined;
-  //     const pkg = await NpmPackage.getByFolder(this.gitRepo[1]);
-  //     resolve(pkg?.name);
-  //   });
-  // }
 }

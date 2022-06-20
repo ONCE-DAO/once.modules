@@ -1,29 +1,26 @@
 import { existsSync, readFileSync } from "fs";
 import { join } from "path";
+import { EMPTY_NAME, EMPTY_NAMESPACE } from "../1_infrastructure/Constants.mjs";
+import NpmPackage from "../3_services/NpmPackage.interface.mjs";
 
-
-// interface foo{
-
-// }
-
-export class NpmPackage {
+export class DefaultNpmPackage implements NpmPackage {
+  onceDependencies?: string[] | undefined;
   path?: string;
-  name?: string;
+  name: string = EMPTY_NAME;
   version?: string;
+  package: string = EMPTY_NAMESPACE;
   namespace?: string;
   linkPackage?: boolean;
   scripts?: any;
-  devDependencies?:any
+  devDependencies?: any
 
-
-
-  static getByFolder(path: string) {
+  static getByFolder(path: string): DefaultNpmPackage {
     return this.getByPath(join(path, "package.json"));
   }
 
-  static getByPath(path: string): NpmPackage | undefined {
-    if (!existsSync(path)) return undefined;
-    const npmPackage: NpmPackage = JSON.parse(readFileSync(path).toString());
+  static getByPath(path: string): DefaultNpmPackage {
+    if (!existsSync(path)) return new DefaultNpmPackage();
+    const npmPackage: DefaultNpmPackage = JSON.parse(readFileSync(path).toString());
     npmPackage.path = path;
     return npmPackage;
   }

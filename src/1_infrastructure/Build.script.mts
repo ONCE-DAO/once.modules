@@ -1,9 +1,7 @@
-import DefaultEAMD from "./EAMD.class.mjs";
+import Scenario from "../2_systems/Scenario.class.mjs";
+import EAMD from "./EAMD.class.mjs";
 
-console.log("BUILD.SCRIPT", process.env.WATCH);
-console.log("PROCESS CWD", process.cwd());
-
+const eamd = await EAMD.getInstance(Scenario.Default)
 const watch = process.env.WATCH == "true";
 
-const eamd = await DefaultEAMD.getInstance(process.cwd())
 await eamd.build(watch);

@@ -1,18 +1,23 @@
+import { existsSync, mkdirSync } from "fs";
 import { join } from "path";
-import EAMD from "../3_services/EAMD.interface.mjs";
+import { DEFAULT_SCENARIO, SCENARIOS_FOLDER } from "../1_infrastructure/Constants.mjs";
 import Scenario from "../3_services/Scenario.interface.mjs";
 
 export default class DefaultScenario implements Scenario {
+    eamdPath: string;
     name: string;
-    private eamd: EAMD;
 
-    constructor(eamd: EAMD, name = "localhost") {
-        this.eamd = eamd
+    static get Default(): DefaultScenario {
+        return new DefaultScenario(process.cwd())
+    }
+
+    constructor(eamdPath: string, name = DEFAULT_SCENARIO) {
+        this.eamdPath = eamdPath
         this.name = name
+        !existsSync(this.scenarioPath) && mkdirSync(this.scenarioPath, { recursive: true })
     }
-
-    get path(): string {
-        return join(this.eamd.folderPath, this.name)
+    
+    get scenarioPath(): string {
+        return join(SCENARIOS_FOLDER, this.name)
     }
-
 }
