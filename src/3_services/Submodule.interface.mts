@@ -9,7 +9,7 @@ export default interface Submodule {
   distributionFolder: string;
   installDependencies(): Promise<void>;
   build(watch?: boolean): Promise<void>;
-  copyNodeModules(): Promise<void>;
+  linkNodeModules(): Promise<void>;
   // afterbuild(): void;
   watch(): Promise<void>;
   // init(config: { path?: string, url?: string, branch?: string }): Promise<Submodule>;
@@ -17,7 +17,7 @@ export default interface Submodule {
 }
 
 export interface SubmoduleStatic<T> {
-  new (): T;
+  new(): T;
   getInstance(): T;
 }
 

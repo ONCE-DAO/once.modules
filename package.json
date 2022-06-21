@@ -2,8 +2,7 @@
   "name": "modules",
   "namespace": "tla.EAM.Once",
   "onceDependencies": [
-    "thinglish",
-    "once.merge"
+    "thinglish"
   ],
   "version": "1.0.0",
   "description": "",

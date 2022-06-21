@@ -3,7 +3,7 @@ import { join } from "path";
 import { execSync, spawn } from "child_process";
 import Submodule from "../3_services/Submodule.interface.mjs";
 import { DefaultNpmPackage } from "./NpmPackage.class.mjs";
-import { cpSync, existsSync, rmdirSync, rmSync, symlinkSync, unlink, unlinkSync } from "fs";
+import { cpSync, existsSync, mkdirSync, rmdirSync, rmSync, symlinkSync, unlink, unlinkSync } from "fs";
 import simpleGit, { SimpleGit } from "simple-git";
 import GitRepository, {
   GitRepositoryParameter,
@@ -25,11 +25,11 @@ export default class DefaultSubmodule
     a: Submodule & GitRepository,
     b: Submodule & GitRepository
   ): number {
-    // console.log(
-    //   `Sort: a [${a.package?.name} ${a.package?.onceDependencies?.join(
-    //     ","
-    //   )}] b [${b.package?.name}]  `
-    // );
+    console.log(
+      `Sort: a [${a.package?.name} ${a.package?.onceDependencies?.join(
+        ","
+      )}] b [${b.package?.name}]  `
+    );
     if (
       b.package?.name &&
       a.package?.onceDependencies?.includes(b.package.name)
@@ -103,23 +103,23 @@ export default class DefaultSubmodule
   }
 
   async installDependencies(): Promise<void> {
-    console.log(`npm i ${join(this.basePath, this.path)}`);
+    console.log(`npm i ${this.baseDir}`);
     execSync("npm i", {
       stdio: "inherit",
-      cwd: join(this.basePath, this.path),
+      cwd: this.baseDir,
     });
   }
 
   async build(watch: boolean = false): Promise<void> {
     // if (this.package && this.package.scripts && this.package.scripts.build) {
     //   console.log("BUILD SCRIPT EXIST");
-    //   execSync(`npm --prefix ${join(this.basePath, this.path)} run build`, {
+    //   execSync(`npm --prefix ${join(this.baseDir)} run build`, {
     //     stdio: "inherit",
     //   });
     // }
 
 
-    if (existsSync(join(this.basePath, this.path, "tsconfig.json"))) {
+    if (existsSync(join(this.baseDir, "tsconfig.json"))) {
       return await this.buildTypescript(watch);
     }
     // if (this.name !== 'thinglish.transformer') {
@@ -129,18 +129,31 @@ export default class DefaultSubmodule
 
     //   }
     //   let UcpComponentDescriptor = (await import("../../../../dist/once.merge/main/2_systems/ServerSideUcpComponentDescriptor.class.mjs")).default;
-    //   let compDesc = new UcpComponentDescriptor().init({ path: join(this.basePath, this.path), relativePath: this.path });
+    //   let compDesc = new UcpComponentDescriptor().init({ path: join(this.baseDir), relativePath: this.path });
 
 
     //   compDesc.writeToDistPath();
     // }
   }
 
-  async copyNodeModules(): Promise<void> {
+  async linkNodeModules(): Promise<void> {
     if (existsSync(this.node_modules)) {
-      existsSync(this.distribution_node_modules) && rmSync(this.distribution_node_modules, { recursive: true })
-      console.log(`copy node_modules from ${this.node_modules} to ${this.distribution_node_modules}`)
-      cpSync(this.node_modules, this.distribution_node_modules, { recursive: true, preserveTimestamps: true, force: true });
+      const targetDir = this.distribution_node_modules;
+      try {
+        unlinkSync(targetDir);
+      } catch { }
+
+      let distributionFolder = join(this.basePath, this.distributionFolder)
+
+      if (!existsSync(distributionFolder)) {
+        mkdirSync(distributionFolder, { recursive: true });
+      }
+      console.log(`link node_modules from ${targetDir} to ${this.node_modules}`)
+      symlinkSync(this.node_modules, targetDir);
+
+
+      // existsSync(this.distribution_node_modules) && rmSync(this.distribution_node_modules, { recursive: true })
+      // cpSync(this.node_modules, this.distribution_node_modules, { recursive: true, preserveTimestamps: true, force: true });
     }
   }
 
@@ -151,7 +164,7 @@ export default class DefaultSubmodule
   private async buildTypescript(watch: boolean) {
     execSync("npx tsc", {
       stdio: 'inherit',
-      cwd: join(this.basePath, this.path),
+      cwd: this.baseDir,
     });
     console.log(`${this.name}@${this.branch} was builded using tsc`);
 
@@ -162,7 +175,7 @@ export default class DefaultSubmodule
     if (watch) {
       spawn("npx", ["tsc", "--watch", "--preserveWatchOutput"], {
         stdio: 'inherit',
-        cwd: join(this.basePath, this.path),
+        cwd: join(this.baseDir),
       });
       console.log(`${this.name}@${this.branch} is watching for changes`);
     }
@@ -172,7 +185,7 @@ export default class DefaultSubmodule
 
   private createDistSymlink() {
 
-    const targetDir = join(this.basePath, this.path, "dist");
+    const targetDir = join(this.baseDir, "dist");
 
     try {
       rmSync(targetDir, { recursive: true })
@@ -198,8 +211,12 @@ export default class DefaultSubmodule
     }
   }
 
+  private get baseDir(): string {
+    return join(this.basePath, this.path)
+  }
+
   private get packageJsonPath() {
-    return join(this.basePath, this.path, "package.json");
+    return join(this.baseDir, "package.json");
   }
 
   private get distribution_packageJsonPath() {
@@ -211,7 +228,7 @@ export default class DefaultSubmodule
   }
 
   private get node_modules() {
-    return join(this.basePath, this.path, "node_modules");
+    return join(this.baseDir, "node_modules");
   }
 
 

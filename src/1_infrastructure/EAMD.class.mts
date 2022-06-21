@@ -37,8 +37,8 @@ export default class DefaultEAMD extends DefaultGitRepository implements EAMD {
     for (let sub of submodules) {
 
       console.log(`run build for ${sub.name}@${sub.branch}`);
-      await sub.copyNodeModules();
-      console.log("node_modules copied");
+      await sub.linkNodeModules();
+      console.log("node_modules link");
 
       await sub.build(watch);
     }
@@ -89,10 +89,11 @@ export default class DefaultEAMD extends DefaultGitRepository implements EAMD {
     const submodules = (await this.getSubmodules(DefaultSubmodule.initSubmodule))
       .sort(DefaultSubmodule.ResolveDependencies)
       .filter(x => !x.folderPath.includes("3rdParty"))
-    submodules.forEach(sub => {
-      sub.distributionFolder = this.getDistributionFolderFor(sub)
-      return sub
-    })
+    submodules.
+      forEach(sub => {
+        sub.distributionFolder = this.getDistributionFolderFor(sub)
+        return sub
+      })
     return submodules
   }
 }
