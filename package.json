@@ -1,8 +1,8 @@
 {
-  "name": "modules",
+  "name": "Modules",
   "namespace": "tla.EAM.Once",
   "onceDependencies": [
-    "thinglish"
+    "Thinglish"
   ],
   "version": "1.0.0",
   "description": "",
