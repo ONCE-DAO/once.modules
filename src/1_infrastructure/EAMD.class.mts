@@ -34,8 +34,12 @@ export default class DefaultEAMD extends DefaultGitRepository implements EAMD {
     const submodules = await this.getSortedSubmodules();
     await this.createPathsConfig(submodules);
 
+
+
     for (let sub of submodules) {
 
+      
+      await sub.updateTsConfig(this.scenario.scenarioPath)
       console.log(`run build for ${sub.name}@${sub.branch}`);
       await sub.linkNodeModules();
       console.log("node_modules link");
@@ -60,13 +64,13 @@ export default class DefaultEAMD extends DefaultGitRepository implements EAMD {
     for (const submodule of submodules) {
       const ior = `ior:esm:/${submodule.package.namespace}.${submodule.package.name}[${submodule.branch}]`;
       if (submodule.package.main === undefined) throw new Error("Missing main in Package.json in " + submodule.folderPath);
-      let modulePath = join(submodule.distributionFolder, submodule.package.main);
+      let modulePath = join(submodule.distributionFolder, submodule.package.main.replace("dist/", ""));
       const value: string[] = [modulePath];
 
       if (submodule.package.types !== undefined) {
         value.unshift(join(submodule.distributionFolder, submodule.package.types));
       } else if (submodule.package.main.endsWith('.mjs')) {
-        value.unshift(join(submodule.distributionFolder, submodule.package.main.replace(/\.m[jt]s$/, '.d.mts')));
+        value.unshift(join(submodule.distributionFolder, submodule.package.main.replace("dist/", "").replace(/\.m[jt]s$/, '.d.mts')));
       }
       data.compilerOptions.paths[ior] = value;
     }

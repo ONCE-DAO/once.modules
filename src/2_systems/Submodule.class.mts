@@ -1,15 +1,15 @@
 import { DefaultGitRepository } from "./GitRepository.class.mjs";
-import { join } from "path";
+import { join, relative } from "path";
 import { execSync, spawn } from "child_process";
 import Submodule from "../3_services/Submodule.interface.mjs";
 import { DefaultNpmPackage } from "./NpmPackage.class.mjs";
-import { cpSync, existsSync, mkdirSync, rmdirSync, rmSync, symlinkSync, unlink, unlinkSync } from "fs";
+import { cpSync, existsSync, mkdirSync, rmdirSync, rmSync, symlinkSync, unlink, unlinkSync, writeFileSync, readFileSync } from 'fs';
 import simpleGit, { SimpleGit } from "simple-git";
 import GitRepository, {
   GitRepositoryParameter,
   NotAGitRepositoryError,
 } from "../3_services/GitRepository.interface.mjs";
-
+// import * as ts from "typescript"
 export default class DefaultSubmodule
   extends DefaultGitRepository
   implements Submodule, GitRepository {
@@ -67,7 +67,7 @@ export default class DefaultSubmodule
     branch: string,
     { baseDir, clone, init }: GitRepositoryParameter
   ): Promise<DefaultSubmodule> {
-    const gitRepository = simpleGit(baseDir, { binary: "git" });
+    const gitRepository = simpleGit(join(baseDir, path), { binary: "git" });
 
     if (!(await gitRepository.checkIsRepo()))
       throw new NotAGitRepositoryError();
@@ -100,6 +100,49 @@ export default class DefaultSubmodule
     this.basePath = basePath;
     this.package = DefaultNpmPackage.getByFolder(folderPath);
     this.distributionFolder = distFolder;
+
+    console.log(`SUBMODULE ${name} has branch ${branch}`)
+  }
+
+  async updateBranchToCheckoutVersion(): Promise<void> {
+    const checkoutBranch = DefaultGitRepository.getBranch(this.gitRepository)
+    console.log(this.name, await (await this.gitRepository.getConfig("remote.origin.url")).value,this.path, this.branch, checkoutBranch)
+   
+    debugger;
+  }
+
+  async updateTsConfig(scenarioPath: string): Promise<void> {
+    const submoduleConfig = join(this.basePath, this.path, "tsconfig.json");
+    const submoduleBuildConfig = join(this.basePath, this.path, "tsconfig.build.json");
+    const mainConfig = join(this.basePath, "tsconfig.json");
+    const foo = readFileSync(submoduleConfig).toString();
+
+
+    console.log(submoduleConfig)
+    // console.log("FOOOOOOOO", join(this.baseDir, this.path));
+    // console.log("FOOOOOOOO", this.distributionFolder);
+    const tsconfig = JSON.parse(foo);
+
+    tsconfig.extends = relative(join(this.basePath, this.path), mainConfig);
+    if (!tsconfig.compilerOptions) tsconfig.compilerOptions = {}
+    tsconfig.compilerOptions.rootDir = "./src"
+    tsconfig.compilerOptions.outDir = relative(join(this.basePath, this.path), join(this.basePath, this.distributionFolder))
+
+    tsconfig.include = [
+      "./src",
+      // relative(join(this.basePath, this.path), join(this.basePath, scenarioPath))
+    ]
+    tsconfig.exclude = [
+      "**/test/**/*",
+      "dist",
+      "node_modules",
+      // relative(join(this.basePath, this.path), this.distributionFolder)
+    ];
+
+    writeFileSync(submoduleBuildConfig, JSON.stringify(tsconfig, undefined, 2))
+    tsconfig.include.push(relative(join(this.basePath, this.path), join(this.basePath, scenarioPath)))
+    tsconfig.exclude.push(relative(join(this.basePath, this.path), this.distributionFolder))
+    writeFileSync(submoduleConfig, JSON.stringify(tsconfig, undefined, 2))
   }
 
   async installDependencies(): Promise<void> {
@@ -111,14 +154,6 @@ export default class DefaultSubmodule
   }
 
   async build(watch: boolean = false): Promise<void> {
-    // if (this.package && this.package.scripts && this.package.scripts.build) {
-    //   console.log("BUILD SCRIPT EXIST");
-    //   execSync(`npm --prefix ${join(this.baseDir)} run build`, {
-    //     stdio: "inherit",
-    //   });
-    // }
-
-
     if (existsSync(join(this.baseDir, "tsconfig.json"))) {
       return await this.buildTypescript(watch);
     }
@@ -162,7 +197,7 @@ export default class DefaultSubmodule
   }
 
   private async buildTypescript(watch: boolean) {
-    execSync("npx tsc", {
+    execSync("npx tsc --project tsconfig.build.json", {
       stdio: 'inherit',
       cwd: this.baseDir,
     });
@@ -170,7 +205,8 @@ export default class DefaultSubmodule
 
 
     this.createDistSymlink();
-    this.copyPackageJson();
+    // this.copyPackageJson();
+
 
     if (watch) {
       spawn("npx", ["tsc", "--watch", "--preserveWatchOutput"], {
@@ -201,30 +237,20 @@ export default class DefaultSubmodule
     symlinkSync(this.distribution_dist, targetDir)
   }
 
-  private copyPackageJson() {
-    const packageOriginalPath = this.packageJsonPath;
-    if (existsSync(packageOriginalPath)) {
-
-      existsSync(this.distribution_packageJsonPath) && rmSync(this.distribution_packageJsonPath)
-      console.log(`copy package.json from ${packageOriginalPath} to ${this.distribution_packageJsonPath}`)
-      cpSync(packageOriginalPath, this.distribution_packageJsonPath);
-    }
-  }
-
   private get baseDir(): string {
     return join(this.basePath, this.path)
   }
 
-  private get packageJsonPath() {
-    return join(this.baseDir, "package.json");
-  }
+  // private get packageJsonPath() {
+  //   return join(this.baseDir, "package.json");
+  // }
 
-  private get distribution_packageJsonPath() {
-    return join(this.basePath, this.distributionFolder, "package.json");
-  }
+  // private get distribution_packageJsonPath() {
+  //   return join(this.basePath, this.distributionFolder, "package.json");
+  // }
 
   private get distribution_dist() {
-    return join(this.basePath, this.distributionFolder, "dist");
+    return join(this.basePath, this.distributionFolder);
   }
 
   private get node_modules() {

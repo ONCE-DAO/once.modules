@@ -1,3 +1,4 @@
+import EAMD from "./EAMD.interface.mjs";
 import NpmPackage from "./NpmPackage.interface.mjs";
 
 export default interface Submodule {
@@ -10,6 +11,8 @@ export default interface Submodule {
   installDependencies(): Promise<void>;
   build(watch?: boolean): Promise<void>;
   linkNodeModules(): Promise<void>;
+  updateTsConfig(scenariosPath:string): Promise<void>;
+  updateBranchToCheckoutVersion(eamd:EAMD):Promise<void>
   // afterbuild(): void;
   watch(): Promise<void>;
   // init(config: { path?: string, url?: string, branch?: string }): Promise<Submodule>;

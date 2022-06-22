@@ -11,7 +11,7 @@ export class DefaultGitRepository implements GitRepository {
   folderPath: string = "";
   currentBranch: string;
   remoteUrl: string;
-  private gitRepository: SimpleGit;
+  protected gitRepository: SimpleGit;
 
   static async init({
     baseDir,

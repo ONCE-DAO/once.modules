@@ -1,17 +1,17 @@
 {
-  "extends": "../../../../../../tsconfig",
+  "extends": "../../../../../../tsconfig.json",
   "compilerOptions": {
     "rootDir": "./src",
-    "outDir": "../../../../../../Scenarios/localhost/tla/EAM/Once/Modules/main/dist/"
+    "outDir": "../../../../../../Scenarios/localhost/tla/EAM/Once/Modules/dev"
   },
   "include": [
-    "./src/**/*",
+    "./src",
     "../../../../../../Scenarios/localhost"
   ],
   "exclude": [
-    "test",
     "**/test/**/*",
+    "dist",
     "node_modules",
-    "../../../../../../Scenarios/localhost/tla/EAM/Once/Modules/main/"
+    "../../../../../../Scenarios/localhost/tla/EAM/Once/Modules/dev"
   ]
 }
