@@ -209,7 +209,7 @@ export default class DefaultSubmodule
 
 
     if (watch) {
-      spawn("npx", ["tsc", "--watch", "--preserveWatchOutput"], {
+      spawn("npx", ["tsc", "--project", "tsconfig.build.json","--watch", "--preserveWatchOutput"], {
         stdio: 'inherit',
         cwd: join(this.baseDir),
       });
