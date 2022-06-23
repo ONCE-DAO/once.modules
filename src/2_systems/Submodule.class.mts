@@ -25,16 +25,16 @@ export default class DefaultSubmodule
     a: Submodule & GitRepository,
     b: Submodule & GitRepository
   ): number {
-    console.log(
-      `Sort: a [${a.package?.name} ${a.package?.onceDependencies?.join(
-        ","
-      )}] b [${b.package?.name}]  `
-    );
+    // console.log(
+    //   `Sort: a [${a.package?.name} ${a.package?.onceDependencies?.join(
+    //     ","
+    //   )}] b [${b.package?.name}]  `
+    // );
     if (
       b.package?.name &&
       a.package?.onceDependencies?.includes(b.package.name)
     ) {
-      console.log("a contains b as dependency. sort b before a");
+      // console.log("a contains b as dependency. sort b before a");
       return 1;
     }
 
@@ -42,21 +42,21 @@ export default class DefaultSubmodule
       a.package?.name &&
       b.package?.onceDependencies?.includes(a.package.name)
     ) {
-      console.log("b contains a as dependency. sort a before b");
+      // console.log("b contains a as dependency. sort a before b");
       return -1;
     }
 
     if (a.package?.onceDependencies?.length) {
-      console.log("a contains  dependencies. sort b before a");
+      // console.log("a contains  dependencies. sort b before a");
       return 1;
     }
 
     if (b.package?.onceDependencies?.length) {
-      console.log("b contains  dependencies. sort a before b");
+      // console.log("b contains  dependencies. sort a before b");
       return -1;
     }
 
-    console.log("no dependency");
+    // console.log("no dependency");
     return 0;
   }
 
